@@ -27,10 +27,8 @@ def main():
     wb = excel.Workbooks.Open(EXCEL_PATH)
     ws = wb.Worksheets(SHEET_NAME)
 
+    # خزّن التاريخ الأصلي
     original_date = ws.Range(DATE_CELL).Value
-
-    # خزّن PrintArea الأصلي
-    original_print_area = ws.PageSetup.PrintArea
 
     current_date = START_DATE
 
@@ -43,31 +41,33 @@ def main():
 
         # غيّر التاريخ
         ws.Range(DATE_CELL).Value = current_date.strftime("%m/%d/%Y")
+
+        # حساب كامل
         excel.CalculateFullRebuild()
 
-        # هنا نجبره يطبع فقط النطاق المحدد باسم info_tbl
-        ws.PageSetup.PrintArea = ws.Range("info_tbl").Address
+        # فعل الشيت حتى يلتزم بمنطقة الطباعة
+        ws.Activate()
 
-        ws.ExportAsFixedFormat(
-            Type=0,
+        # تصدير PDF والالتزام بمنطقة الطباعة
+        excel.ActiveSheet.ExportAsFixedFormat(
+            Type=0,  # 0 = PDF
             Filename=output_path,
-            Quality=0,
+            Quality=0,  # جودة عالية
             IncludeDocProperties=True,
-            IgnorePrintAreas=False,
+            IgnorePrintAreas=False,  # مهم جداً
             OpenAfterPublish=False
         )
 
         current_date += timedelta(days=1)
 
-    # رجّع كلشي مثل ما كان
+    # رجّع التاريخ الأصلي
     ws.Range(DATE_CELL).Value = original_date
-    ws.PageSetup.PrintArea = original_print_area
-
     wb.Save()
+
     wb.Close(SaveChanges=True)
     excel.Quit()
 
-    print("✅ All PDFs generated correctly from info_tbl.")
+    print("✅ All PDFs generated successfully.")
 
 if __name__ == "__main__":
     main()
