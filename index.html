@@ -1,95 +1,147 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI - Eng Ibrahim</title>
-  <style>
-    body{
-      margin:0; height:100vh; display:flex; align-items:center; justify-content:center;
-      font-family: Arial, sans-serif; background: linear-gradient(135deg,#0f172a,#1e293b);
-      color:#fff; text-align:center;
-    }
-    .box{
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius:16px; padding:40px 28px; width:min(720px, 92vw);
-      box-shadow: 0 20px 60px rgba(0,0,0,0.45);
-    }
-    h1{margin:0 0 10px; font-size:44px; color:#38bdf8;}
-    p{margin:0 0 22px; opacity:.85; line-height:1.7}
-    .row{display:flex; gap:10px; justify-content:center; flex-wrap:wrap;}
-    input{
-      width:min(420px, 86vw);
-      padding:12px 14px; border-radius:10px;
-      border:1px solid rgba(255,255,255,0.18);
-      background: rgba(15,23,42,0.6); color:#fff; outline:none;
-    }
-    button{
-      padding:12px 16px; border-radius:10px; border:none; cursor:pointer;
-      background:#38bdf8; color:#001018; font-weight:bold;
-    }
-    #out{margin-top:18px; font-size:16px; opacity:.9}
-    .hint{margin-top:10px; font-size:13px; opacity:.65}
-  </style>
-</head>
-<body>
-  <div class="box">
-    <h1>AI Dashboard</h1>
-    <p>مساعد يقرأ بياناتك من Excel عبر api.json</p>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تقارير شركة الداودي</title>
 
-    <div class="row">
-      <input id="q" placeholder="اكتب سؤالك... مثال: شكد المجموع اليوم؟" />
-      <button onclick="ask()">اسأل</button>
+<style>
+body {
+    margin: 0;
+    font-family: Tahoma, Arial;
+    background: #f4f6f9;
+    direction: rtl;
+    text-align: center;
+}
+
+header {
+    background: #1e2a38;
+    color: white;
+    padding: 20px;
+    font-size: 22px;
+}
+
+.container {
+    width: 95%;
+    max-width: 1200px;
+    margin: 30px auto;
+}
+
+.controls {
+    margin-bottom: 20px;
+}
+
+input[type="date"] {
+    padding: 10px;
+    font-size: 16px;
+}
+
+button {
+    padding: 10px 18px;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+    background: #007bff;
+    color: white;
+    border-radius: 5px;
+    margin-right: 5px;
+}
+
+button:hover {
+    background: #0056b3;
+}
+
+.message {
+    margin-top: 15px;
+    font-weight: bold;
+    color: red;
+}
+
+iframe {
+    width: 100%;
+    height: 900px;
+    border: none;
+    margin-top: 20px;
+    background: white;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+footer {
+    margin-top: 40px;
+    padding: 20px;
+    background: #1e2a38;
+    color: white;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    نظام عرض التقارير اليومية - شركة الداودي
+</header>
+
+<div class="container">
+
+    <div class="controls">
+        <input type="date" id="reportDate">
+        <button onclick="loadReport()">عرض التقرير</button>
+        <button onclick="openInNewTab()">فتح بصفحة مستقلة</button>
     </div>
 
-    <div id="out">جاهز ✅</div>
-    <div class="hint">يتحدث من api.json بعد كل تحديث.</div>
-  </div>
+    <div id="message" class="message"></div>
 
-  <script>
-  async function ask() {
-    const q = document.getElementById("q").value.trim();
-    const out = document.getElementById("out");
+    <iframe id="reportFrame"></iframe>
 
-    if (!q) {
-      out.textContent = "اكتب سؤال أولاً 🙂";
-      return;
+</div>
+
+<footer>
+    جميع الحقوق محفوظة © 2026
+</footer>
+
+<script>
+
+function loadReport() {
+
+    const dateValue = document.getElementById("reportDate").value;
+    const message = document.getElementById("message");
+    const frame = document.getElementById("reportFrame");
+
+    message.innerText = "";
+    frame.src = "";
+
+    if (!dateValue) {
+        message.innerText = "يرجى اختيار تاريخ أولاً";
+        return;
     }
 
-    out.textContent = "جاري جلب البيانات...";
+    const filePath = "history_images/" + dateValue + ".pdf";
 
-    try {
-      // نضيف ?v= حتى ما يخزن المتصفح نسخة قديمة
-      const res = await fetch("data/api.json?v=" + Date.now(), { cache: "no-store" });
-      if (!res.ok) throw new Error("HTTP " + res.status);
+    fetch(filePath, { method: "HEAD" })
+        .then(response => {
+            if (response.ok) {
+                frame.src = filePath;
+            } else {
+                message.innerText = "لا يوجد تقرير لهذا التاريخ";
+            }
+        })
+        .catch(() => {
+            message.innerText = "لا يوجد تقرير لهذا التاريخ";
+        });
+}
 
-      const data = await res.json();
-
-      const question = q.replace(/\s+/g, " ").toLowerCase();
-
-      // جواب عدد السيارات
-      if (question.includes("سيار") || question.includes("شاحنة") || question.includes("تريلة")) {
-        const cars = (data.cars === null || data.cars === undefined)
-          ? "غير متوفر حالياً"
-          : data.cars;
-        out.textContent = `بتاريخ ${data.date}: عدد السيارات = ${cars}`;
+function openInNewTab() {
+    const dateValue = document.getElementById("reportDate").value;
+    if (!dateValue) {
+        alert("اختر تاريخ أولاً");
         return;
-      }
-
-      // جواب المجموع / الكمية
-      if (question.includes("مجموع") || question.includes("كمية") || question.includes("محمل") || question.includes("تحميل")) {
-        out.textContent = `بتاريخ ${data.date}: المجموع = ${data.total}`;
-        return;
-      }
-
-      // جواب عام
-      out.textContent = `عندي بيانات بتاريخ ${data.date}: المجموع ${data.total}، السيارات ${data.cars ?? "غير متوفر"}`;
-
-    } catch (e) {
-      out.textContent = "ما قدرت أقرأ api.json ❌ تأكد الرابط يفتح: /api.json";
     }
-  }
-  </script>
+
+    const filePath = "history_images/" + dateValue + ".pdf";
+    window.open(filePath, "_blank");
+}
+
+</script>
+
 </body>
 </html>
