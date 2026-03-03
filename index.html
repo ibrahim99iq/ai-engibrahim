@@ -1,30 +1,95 @@
-<script>
-async function ask() {
-  const question = document.getElementById("q").value.trim();
-  const output = document.getElementById("out");
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI - Eng Ibrahim</title>
+  <style>
+    body{
+      margin:0; height:100vh; display:flex; align-items:center; justify-content:center;
+      font-family: Arial, sans-serif; background: linear-gradient(135deg,#0f172a,#1e293b);
+      color:#fff; text-align:center;
+    }
+    .box{
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius:16px; padding:40px 28px; width:min(720px, 92vw);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.45);
+    }
+    h1{margin:0 0 10px; font-size:44px; color:#38bdf8;}
+    p{margin:0 0 22px; opacity:.85; line-height:1.7}
+    .row{display:flex; gap:10px; justify-content:center; flex-wrap:wrap;}
+    input{
+      width:min(420px, 86vw);
+      padding:12px 14px; border-radius:10px;
+      border:1px solid rgba(255,255,255,0.18);
+      background: rgba(15,23,42,0.6); color:#fff; outline:none;
+    }
+    button{
+      padding:12px 16px; border-radius:10px; border:none; cursor:pointer;
+      background:#38bdf8; color:#001018; font-weight:bold;
+    }
+    #out{margin-top:18px; font-size:16px; opacity:.9}
+    .hint{margin-top:10px; font-size:13px; opacity:.65}
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>AI Dashboard</h1>
+    <p>مساعد يقرأ بياناتك من Excel عبر api.json</p>
 
-  if (!question) {
-    output.textContent = "اكتب سؤال أولاً 🙂";
-    return;
-  }
+    <div class="row">
+      <input id="q" placeholder="اكتب سؤالك... مثال: شكد المجموع اليوم؟" />
+      <button onclick="ask()">اسأل</button>
+    </div>
 
-  try {
-    const response = await fetch("api.json");
-    const data = await response.json();
+    <div id="out">جاهز ✅</div>
+    <div class="hint">يتحدث من api.json بعد كل تحديث.</div>
+  </div>
 
-    if (question.includes("اليوم") || question.includes("مجموع")) {
-      output.textContent =
-        "تاريخ: " + data.date + " | المجموع: " + data.total;
-    } else if (question.includes("سيارات")) {
-      output.textContent =
-        "عدد السيارات بتاريخ " + data.date + " هو: " + data.cars;
-    } else {
-      output.textContent =
-        "عندي بيانات بتاريخ " + data.date + " والمجموع " + data.total;
+  <script>
+  async function ask() {
+    const q = document.getElementById("q").value.trim();
+    const out = document.getElementById("out");
+
+    if (!q) {
+      out.textContent = "اكتب سؤال أولاً 🙂";
+      return;
     }
 
-  } catch (error) {
-    output.textContent = "صار خطأ بقراءة البيانات ❌";
+    out.textContent = "جاري جلب البيانات...";
+
+    try {
+      // نضيف ?v= حتى ما يخزن المتصفح نسخة قديمة
+      const res = await fetch("api.json?v=" + Date.now(), { cache: "no-store" });
+      if (!res.ok) throw new Error("HTTP " + res.status);
+
+      const data = await res.json();
+
+      const question = q.replace(/\s+/g, " ").toLowerCase();
+
+      // جواب عدد السيارات
+      if (question.includes("سيار") || question.includes("شاحنة") || question.includes("تريلة")) {
+        const cars = (data.cars === null || data.cars === undefined)
+          ? "غير متوفر حالياً"
+          : data.cars;
+        out.textContent = `بتاريخ ${data.date}: عدد السيارات = ${cars}`;
+        return;
+      }
+
+      // جواب المجموع / الكمية
+      if (question.includes("مجموع") || question.includes("كمية") || question.includes("محمل") || question.includes("تحميل")) {
+        out.textContent = `بتاريخ ${data.date}: المجموع = ${data.total}`;
+        return;
+      }
+
+      // جواب عام
+      out.textContent = `عندي بيانات بتاريخ ${data.date}: المجموع ${data.total}، السيارات ${data.cars ?? "غير متوفر"}`;
+
+    } catch (e) {
+      out.textContent = "ما قدرت أقرأ api.json ❌ تأكد الرابط يفتح: /api.json";
+    }
   }
-}
-</script>
+  </script>
+</body>
+</html>
