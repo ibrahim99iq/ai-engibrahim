@@ -61,7 +61,7 @@
 
     try {
       // نضيف ?v= حتى ما يخزن المتصفح نسخة قديمة
-      const res = await fetch("api.json?v=" + Date.now(), { cache: "no-store" });
+      const res = await fetch("data/api.json?v=" + Date.now(), { cache: "no-store" });
       if (!res.ok) throw new Error("HTTP " + res.status);
 
       const data = await res.json();
