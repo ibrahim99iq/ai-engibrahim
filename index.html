@@ -5,146 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>نظام التقارير اليومية - شركة الداودي</title>
 
-<!-- Google Arabic Font -->
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
 
-<style>
-
-*{
-    box-sizing:border-box;
-    margin:0;
-    padding:0;
-}
-
-body{
-    font-family:'Cairo', sans-serif;
-    direction:rtl;
-    background:linear-gradient(135deg,#0f172a,#1e293b,#334155);
-    color:#fff;
-}
-
-/* Header */
-.header{
-    text-align:center;
-    padding:30px 15px;
-}
-
-.header h1{
-    font-size:28px;
-    font-weight:700;
-    letter-spacing:1px;
-}
-
-.header p{
-    margin-top:8px;
-    font-size:14px;
-    opacity:0.7;
-}
-
-/* Card */
-.container{
-    width:95%;
-    max-width:1100px;
-    margin:20px auto 40px auto;
-    background:rgba(255,255,255,0.06);
-    backdrop-filter:blur(18px);
-    border-radius:18px;
-    padding:30px;
-    box-shadow:0 0 40px rgba(0,0,0,0.4);
-}
-
-/* Controls */
-.controls{
-    display:flex;
-    justify-content:center;
-    gap:12px;
-    flex-wrap:wrap;
-}
-
-input[type="date"]{
-    padding:12px;
-    font-size:15px;
-    border-radius:8px;
-    border:none;
-    outline:none;
-    font-family:'Cairo', sans-serif;
-}
-
-button{
-    padding:12px 20px;
-    font-size:15px;
-    border-radius:8px;
-    border:none;
-    cursor:pointer;
-    font-weight:600;
-    transition:0.3s;
-    font-family:'Cairo', sans-serif;
-}
-
-/* Buttons */
-.btn-primary{
-    background:#3b82f6;
-    color:white;
-}
-
-.btn-primary:hover{
-    background:#2563eb;
-}
-
-.btn-secondary{
-    background:#10b981;
-    color:white;
-}
-
-.btn-secondary:hover{
-    background:#059669;
-}
-
-/* Message */
-.message{
-    margin-top:15px;
-    text-align:center;
-    color:#f87171;
-    font-weight:600;
-}
-
-/* PDF Frame */
-iframe{
-    width:100%;
-    height:75vh;
-    margin-top:25px;
-    border:none;
-    border-radius:12px;
-    background:white;
-    box-shadow:0 0 20px rgba(0,0,0,0.4);
-}
-
-/* Footer */
-.footer{
-    text-align:center;
-    padding:20px;
-    font-size:13px;
-    opacity:0.6;
-}
-
-/* Mobile */
-@media(max-width:600px){
-
-    .header h1{
-        font-size:20px;
-    }
-
-    .container{
-        padding:20px;
-    }
-
-    iframe{
-        height:65vh;
-    }
-
-}
-
-</style>
 </head>
 
 <body>
@@ -169,56 +32,14 @@ iframe{
 </div>
 
 <div class="footer">
-© 2026 جميع الحقوق محفوظة - نظام داخلي
+    <div class="designer">
+        تصميم وبرمجة <strong>المهندس إبراهيم الخفاف</strong>
+    </div>
+    <div class="rights">
+        © 2026 جميع الحقوق محفوظة - شركة الداودي
+    </div>
 </div>
 
-<script>
-
-function loadReport(){
-
-    const dateValue=document.getElementById("reportDate").value;
-    const message=document.getElementById("message");
-    const frame=document.getElementById("reportFrame");
-
-    message.innerText="";
-    frame.src="";
-
-    if(!dateValue){
-        message.innerText="يرجى اختيار تاريخ أولاً";
-        return;
-    }
-
-    const filePath="history_images/"+dateValue+".pdf";
-
-    fetch(filePath,{method:"HEAD"})
-    .then(response=>{
-        if(response.ok){
-            frame.src=filePath;
-        }else{
-            message.innerText="لا يوجد تقرير لهذا التاريخ";
-        }
-    })
-    .catch(()=>{
-        message.innerText="لا يوجد تقرير لهذا التاريخ";
-    });
-
-}
-
-function openInNewTab(){
-
-    const dateValue=document.getElementById("reportDate").value;
-
-    if(!dateValue){
-        alert("اختر تاريخ أولاً");
-        return;
-    }
-
-    const filePath="history_images/"+dateValue+".pdf";
-    window.open(filePath,"_blank");
-
-}
-
-</script>
-
+<script src="js/app.js"></script>
 </body>
 </html>
